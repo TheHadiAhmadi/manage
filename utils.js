@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import 'dotenv/config'
 
-const BASE_DIR = "/home/hadi/pm2-apps/";
-const NGINX_CONFIG_FILE = path.join(BASE_DIR, "nginx.conf");
-const PROJECTS_FILE = path.join(BASE_DIR, "projects.json");
+export const BASE_DIR = process.env.BASE_DIR ?? "~/pm2-apps/";
+export const NGINX_CONFIG_FILE = path.join(BASE_DIR, "nginx.conf");
+export const PROJECTS_FILE = path.join(BASE_DIR, "projects.json");
 
 // Ensure the BASE_DIR exists
 if (!fs.existsSync(BASE_DIR)) {
