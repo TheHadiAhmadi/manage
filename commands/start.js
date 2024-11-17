@@ -41,7 +41,7 @@ export const startProject = async () => {
     // Start the project with pm2
     console.log("Starting the project with pm2...");
     try {
-        execSync(`pm2 start npm --name "${project.name}" -- start -- --port=${project.port}`, {
+        execSync(`PORT=${project.port} pm2 start npm --name "${project.name}" --update-env -- start`, {
             stdio: "inherit",
         });
     } catch (err) {
