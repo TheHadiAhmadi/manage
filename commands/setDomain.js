@@ -42,20 +42,15 @@ export const setDomain = async () => {
       const updatedConfig = nginxConfig.replace(`server_name ${project.domain};`, `server_name ${domainName};`);
 
       console.log(updatedConfig)
-      project.domain =domainName;
+      project.domain = domainName;
       fs.writeFileSync(NGINX_CONFIG_FILE, updatedConfig, "utf8");
   
   
       // Run certbot to generate SSL
       console.log("Generating SSL certificate with certbot...");
       try {
-        //execSync(`certbot --nginx -d ${domainName}`, { stdio: "inherit" });
-        // Optionally restart nginx
   
-        // After certbot runs, update the certbot fields with the new certificate paths
-        project.certbot.certificate_path = `/etc/letsencrypt/live/${domainName}/fullchain.pem`;
-        project.certbot.certificate_key_path = `/etc/letsencrypt/live/${domainName}/privkey.pem`;
-  
+        project.ssl = true;
         // Save updated projects configuration
         saveProjectsConfig(projects);
       } catch (err) {

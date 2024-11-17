@@ -37,25 +37,27 @@ export const generateNginxConfig = async () => {
 
   for (const project of projects) {
     let serverBlock = `
-    server {
-      listen ${project.port};
-      server_name ${project.domain};
+server {
+    server_name ${project.domain};
     
-      location / {
+    location / {
         proxy_pass http://localhost:${project.port};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-      }
-    `;
+    }
+`;
 
-    if (project.certbot?.certificate_path) {
+    if (project.ssl) {
       // Add SSL configuration if ssl is true in config
       serverBlock += `
-  listen 443 ssl;
-  ssl_certificate ${project.certbot.certificate_path};
-  ssl_certificate_key ${project.certbot.certificate_key_path};
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/${project.domain}/fullchain.pem; # managed by Manage
+    ssl_certificate_key /etc/letsencrypt/live/${project.domain}/privkey.pem; # managed by Manage
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Manage
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # mamaged by Manage
+
 `;
     }
 
