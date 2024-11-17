@@ -1,6 +1,7 @@
 
 import inquirer from 'inquirer';
 import path from 'path';
+import fs from 'fs';
 import { execSync } from 'child_process'
 import { BASE_DIR, loadProjectsConfig, saveProjectsConfig } from "../utils.js";
 
@@ -53,6 +54,7 @@ export const deleteProject = async () => {
         process.exit(1);
     }
 
+    saveProjectsConfig(projects.filter(x => x.name !== projectName))
     console.log(`Project ${projectName} has been deleted.`);
 };
 
