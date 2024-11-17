@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import 'dotenv/config'
 
-export const BASE_DIR = process.env.BASE_DIR ?? "~/pm2-apps/";
+export const BASE_DIR = process.env.BASE_DIR ?? "/home/hadi/pm2-apps/";
 export const NGINX_CONFIG_FILE = path.join(BASE_DIR, "nginx.conf");
 export const PROJECTS_FILE = path.join(BASE_DIR, "projects.json");
 
@@ -50,7 +50,7 @@ export const generateNginxConfig = async () => {
       }
     `;
 
-    if (project.ssl) {
+    if (project.certbot?.certificate_path) {
       // Add SSL configuration if ssl is true in config
       serverBlock += `
   listen 443 ssl;

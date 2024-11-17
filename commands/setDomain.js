@@ -1,16 +1,24 @@
 import inquirer from 'inquirer';
 import path from 'path';
+import fs from 'fs';
 import { execSync } from 'child_process'
-import { BASE_DIR, loadProjectsConfig, saveProjectsConfig } from "../utils.js";
+import { generateNginxConfig, BASE_DIR, NGINX_CONFIG_FILE,loadProjectsConfig, saveProjectsConfig } from "../utils.js";
 
 
 export const setDomain = async () => {
+    const projects = loadProjectsConfig();
+    if(projects.length == 0) {
+      console.log("No projects found")
+
+      return;
+    }
+
     const { projectName, domainName } = await inquirer.prompt([
       {
         type: "list",
         name: "projectName",
         message: "Select the project to set domain for:",
-        choices: loadProjectsConfig().map(x => `${x.name} (${x.port})`),
+        choices: projects.map(x => ({value: x.name, name: `${x.name} (${x.port})`})),
       },
       {
         type: "input",
@@ -26,22 +34,23 @@ export const setDomain = async () => {
       process.exit(1);
     }
   
+    const project = projects.find(x => x.name == projectName)
     // Update nginx configuration
     console.log("Updating Nginx configuration...");
     try {
-      const nginxConfig = fs.readFileSync(NGINX_CONF_PATH, "utf8");
-      const updatedConfig = nginxConfig.replace(/server_name\s+[^;]+;/, `server_name ${domainName};`);
-      fs.writeFileSync(NGINX_CONF_PATH, updatedConfig, "utf8");
+      const nginxConfig = fs.readFileSync(NGINX_CONFIG_FILE, "utf8");
+      const updatedConfig = nginxConfig.replace(`server_name ${project.domain};`, `server_name ${domainName};`);
+
+      console.log(updatedConfig)
+      project.domain =domainName;
+      fs.writeFileSync(NGINX_CONFIG_FILE, updatedConfig, "utf8");
   
-      // Optionally restart nginx
-      console.log("Restarting Nginx...");
-      execSync("sudo systemctl restart nginx", { stdio: "inherit" });
   
       // Run certbot to generate SSL
       console.log("Generating SSL certificate with certbot...");
       try {
-        execSync(`certbot --nginx -d ${domainName} --agree-tos --non-interactive --email your-email@example.com`, { stdio: "inherit" });
-  
+        //execSync(`certbot --nginx -d ${domainName}`, { stdio: "inherit" });
+        // Optionally restart nginx
   
         // After certbot runs, update the certbot fields with the new certificate paths
         project.certbot.certificate_path = `/etc/letsencrypt/live/${domainName}/fullchain.pem`;
@@ -60,5 +69,12 @@ export const setDomain = async () => {
   
     console.log(`Domain ${domainName} has been set for project ${projectName}.`);
     await generateNginxConfig()
+
+    console.log("You should restart Nginx: ");
+    console.log("\n\n\tsudo systemctl restart nginx");
+    console.log(`\tcertbot --nginx -d ${domainName}\n\n`)
+
+    execSync("./update.sh " + domainName)
+  
   };
   

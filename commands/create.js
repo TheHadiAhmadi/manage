@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import 'dotenv/config'
 import { execSync } from 'child_process'
-import { BASE_DIR, loadProjectsConfig, saveProjectsConfig } from "../utils.js";
+import { BASE_DIR, generateNginxConfig, loadProjectsConfig, saveProjectsConfig } from "../utils.js";
 
 const getUniquePort = () => {
     const ports = loadProjectsConfig().map(x => x.port);
@@ -20,7 +20,7 @@ const getUniquePort = () => {
 // Start interactive CLI
 export const createProject = async () => {
     // Ask for repository details
-    const { repository, projectName, buildOption } = await inquirer.prompt([
+    const { repository, projectName, buildOption, domain } = await inquirer.prompt([
         {
             type: "input",
             name: "repository",
@@ -32,6 +32,12 @@ export const createProject = async () => {
             name: "projectName",
             message: "Enter name of the project (defaults to repository name):",
             validate: (input) => true,
+        },
+        {
+            type: "input",
+            name: "domain",
+            message: "Enter domain name of the project",
+            validate: (input) => (input.length > 0 && input.includes('.')) ? true : "Invalid domain name"
         },
         {
             type: "list",
@@ -58,7 +64,9 @@ export const createProject = async () => {
     // Clone the repository
     console.log("Cloning repository...");
     try {
-        execSync(`git clone --depth 1 https://github.com/${repository}.git ${projectDir}`, {
+        let command = `git clone --depth 1 git@github.com:${repository}.git ${projectDir}`;
+        console.log('command: ' + command);
+        execSync(command, {
             stdio: "inherit",
         });
     } catch (err) {
@@ -86,12 +94,15 @@ export const createProject = async () => {
 
     projects.push({
         name: projectName,
+        domain,
         port,
         buildOption,
         certbot: {}
     })
 
     saveProjectsConfig(projects)
+
+    await generateNginxConfig()
 
     console.log(`Project ${repoName} is created successfully!`);
     console.log(`you need to run this command again and start project.`);
