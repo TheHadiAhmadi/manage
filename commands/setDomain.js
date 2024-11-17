@@ -63,7 +63,7 @@ export const setDomain = async () => {
     }
   
     console.log(`Domain ${domainName} has been set for project ${projectName}.`);
-    await generateNginxConfig()
+//     await generateNginxConfig()
 
     console.log("You should restart Nginx: ");
     console.log("\n\n\tsudo systemctl restart nginx");

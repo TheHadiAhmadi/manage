@@ -6,6 +6,7 @@ import { deleteProject } from "./commands/delete.js";
 import { setDomain } from "./commands/setDomain.js";
 import { startProject } from "./commands/start.js";
 import { updateProject } from "./commands/update.js";
+import { generateNginxConfig } from './utils.js'
 
 const main = async () => {
   console.log("Welcome to the Node.js Project Manager!");
@@ -19,7 +20,8 @@ const main = async () => {
         { name: "Create a new project", value: "create" },
         { name: "Start a project", value: "start" },
         { name: "Update an existing project", value: "update" },
-        { name: "Set domain to a project", value: "set-domain" },
+        { name: "update domain of a project", value: "set-domain" },
+        { name: "Generate nginx config", value: "set-domain" },
         { name: "Delete a project", value: "delete-project" },
       ],
     },
@@ -31,6 +33,8 @@ const main = async () => {
     await startProject();
   } else if (action === "update") {
     await updateProject();
+  } else if (action == 'update-nginx') {
+    await generateNginxConfig();
   } else if (action == 'set-domain') {
     await setDomain();
   } else if (action == 'delete-project') {

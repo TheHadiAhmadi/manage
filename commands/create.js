@@ -20,7 +20,7 @@ const getUniquePort = () => {
 // Start interactive CLI
 export const createProject = async () => {
     // Ask for repository details
-    const { repository, projectName, buildOption, domain } = await inquirer.prompt([
+    const { repository, projectName, buildOption, domain, generateSsl } = await inquirer.prompt([
         {
             type: "input",
             name: "repository",
@@ -38,6 +38,16 @@ export const createProject = async () => {
             name: "domain",
             message: "Enter domain name of the project",
             validate: (input) => (input.length > 0 && input.includes('.')) ? true : "Invalid domain name"
+        },
+        {
+            type: "list",
+            name: "generateSsl",
+            message: "Should we generate ssl to enable https?",
+            choices: [
+                { name: "Yes", value: "yes" },
+                { name: "No", value: "no" },
+            ],
+            default: "no",
         },
         {
             type: "list",
@@ -95,12 +105,17 @@ export const createProject = async () => {
     projects.push({
         name: projectName,
         domain,
+        ssl: generateSsl,
         port,
         buildOption,
         certbot: {}
     })
 
     saveProjectsConfig(projects)
+
+    if(generateSsl) {
+        execSync(`./certbot.sh ${domain}`, {stdio: 'inherit'})
+    }
 
     await generateNginxConfig()
 
