@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import path from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process'
-import { BASE_DIR, loadProjectsConfig, saveProjectsConfig } from "../utils.js";
+import { BASE_DIR, loadProjectsConfig, NGINX_CONFIG_FILE, saveProjectsConfig } from "../utils.js";
 
 export const deleteProject = async () => {
     const { projectName } = await inquirer.prompt([
@@ -37,20 +37,6 @@ export const deleteProject = async () => {
         fs.rmdirSync(projectDir, { recursive: true });
     } catch (err) {
         console.error("Failed to delete project directory.");
-        process.exit(1);
-    }
-
-    // Optionally delete the Nginx configuration
-    console.log("Removing Nginx configuration...");
-    try {
-        const nginxConfig = fs.readFileSync(NGINX_CONF_PATH, "utf8");
-        const updatedConfig = nginxConfig.replace(new RegExp(`server_name\\s+${projectName}\\s*;`, 'g'), '');
-        fs.writeFileSync(NGINX_CONF_PATH, updatedConfig, "utf8");
-
-        // Optionally restart nginx
-        execSync("sudo systemctl restart nginx", { stdio: "inherit" });
-    } catch (err) {
-        console.error("Failed to remove Nginx configuration.");
         process.exit(1);
     }
 
