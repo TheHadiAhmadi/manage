@@ -114,7 +114,7 @@ export const createProject = async () => {
     saveProjectsConfig(projects)
 
     if(generateSsl) {
-        execSync(`./certbot.sh ${domain}`, {stdio: 'inherit'})
+        execSync(`../certbot.sh ${domain}`, {stdio: 'inherit'})
     }
 
     await generateNginxConfig()

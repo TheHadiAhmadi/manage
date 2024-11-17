@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {execSync} from 'fs'
+import {execSync} from 'child_process'
 import inquirer from "inquirer";
 import { createProject } from "./commands/create.js";
 import { deleteProject } from "./commands/delete.js";
