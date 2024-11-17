@@ -11,7 +11,7 @@ export const deleteProject = async () => {
             type: "list",
             name: "projectName",
             message: "Select the project to delete:",
-            choices: loadProjectsConfig().map(x => `${x.name} (${x.port})`),
+            choices: loadProjectsConfig().map(x => ({name: `${x.name} (${x.port})`, value: x.name})),
         }
     ]);
 
