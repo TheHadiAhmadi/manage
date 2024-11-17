@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import {execSync} from 'fs'
 import inquirer from "inquirer";
 import { createProject } from "./commands/create.js";
 import { deleteProject } from "./commands/delete.js";
@@ -21,7 +22,7 @@ const main = async () => {
         { name: "Start a project", value: "start" },
         { name: "Update an existing project", value: "update" },
         { name: "update domain of a project", value: "set-domain" },
-        { name: "Generate nginx config", value: "set-domain" },
+        { name: "Generate nginx config", value: "update-nginx" },
         { name: "Delete a project", value: "delete-project" },
       ],
     },
@@ -35,6 +36,7 @@ const main = async () => {
     await updateProject();
   } else if (action == 'update-nginx') {
     await generateNginxConfig();
+    execSync('./nginx.sh', {stdio: 'inherit'})
   } else if (action == 'set-domain') {
     await setDomain();
   } else if (action == 'delete-project') {
